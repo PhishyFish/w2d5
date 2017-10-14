@@ -47,7 +47,8 @@ class LinkedList
   end
 
   def get(key)
-    select { |node| node.key == key }
+    return nil unless include?(key)
+    find(key).val
   end
 
   def include?(key)
@@ -57,25 +58,25 @@ class LinkedList
   end
 
   def append(key, val)
-    if include?(key)
-      update(key, val)
-    else
-      new_node = Node.new(key, val)
-      new_node.prev = last
-      last.next = new_node
-      new_node.next = @sentinel_tail
-      @sentinel_tail.prev = new_node
-    end
+    update(key, val)
+
+    new_node = Node.new(key, val)
+    new_node.prev = last
+    last.next = new_node
+    new_node.next = @sentinel_tail
+    @sentinel_tail.prev = new_node
   end
 
   def update(key, val)
-    node = get(key)
-    node.value = val
+    if include?(key)
+      node = find(key)
+      node.val = val
+    end
   end
 
   def remove(key)
     if include?(key)
-      current_node = get(key)
+      current_node = find(key)
       prev_node = current_node.prev
       next_node = current_node.next
 
@@ -87,7 +88,7 @@ class LinkedList
   def each
     i = first
 
-    until i.next == @sentinel_tail
+    until i == @sentinel_tail
       yield(i)
       i = i.next
     end
@@ -95,6 +96,11 @@ class LinkedList
     self
   end
 
+  private
+
+  def find(key)
+    select { |node| node.key == key }.first
+  end
   # uncomment when you have `each` working and `Enumerable` included
   # def to_s
   #   inject([]) { |acc, link| acc << "[#{link.key}, #{link.val}]" }.join(", ")
